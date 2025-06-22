@@ -4,8 +4,8 @@ branding:
   icon: slash
   color: red
 inputs:
-  limit:
-    scope: |
+  scope:
+    description: |
       Description: The scope of the interaction limits
       Type: "existing_users" | "contributors_only" | "collaborators_only"
       Default: if set, currently set limit.
