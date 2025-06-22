@@ -3,7 +3,22 @@ description: "Cyclically re-enable interaction limits"
 branding:
   icon: slash
   color: red
+inputs:
+  limit:
+    description: 'The limit to set for interactions. Must be one of: existing_users, contributors_only, collaborators_only.'
+    required: true
+  expiry:
+    description: 'The duration of the interaction limit. Must be one of: one_day, three_days, one_week, one_month, six_months.'
+    required: true
 runs:
   using: "composite"
   steps:
-  
+    - name: Set interaction limit
+      shell: bash
+      run: |
+        gh api repos/${{ github.repository }}/interaction-limits \
+          -X PUT \
+          -f limit=${{ inputs.limit }} \
+          -f expiry=${{ inputs.expiry }}
+      env:
+        GITHUB_TOKEN: ${{ github.token }}
