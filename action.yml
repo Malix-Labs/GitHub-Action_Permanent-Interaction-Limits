@@ -10,6 +10,7 @@ inputs:
 runs:
   using: "composite"
   steps:
+
     - name: Determine interaction limit
       shell: sh
       run: |
@@ -21,6 +22,7 @@ runs:
         echo "LIMIT_TO_SET=${LIMIT_TO_SET}" >> $GITHUB_ENV
       env:
         GITHUB_TOKEN: ${{ github.token }}
+
     - name: Apply interaction limit
       shell: sh
       run: |
