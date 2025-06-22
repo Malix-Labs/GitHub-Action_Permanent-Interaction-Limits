@@ -14,7 +14,6 @@ inputs:
     description: |
       Description: The target of the interaction limits. Owner means the organization or the user, depending on where this action is used.
       Type: "repository" | "owner"
-      Default: "repository"
     required: false
     default: "repository"
 runs:
@@ -41,8 +40,8 @@ runs:
     - name: Determine interaction limit
       shell: sh
       run: |
-        if [ -n "${{ inputs.limit }}" ]; then
-          LIMIT_TO_SET="${{ inputs.limit }}"
+        if [ -n "${{ inputs.scope }}" ]; then
+          LIMIT_TO_SET="${{ inputs.scope }}"
         else
           LIMIT_TO_SET="$(gh api "${{ env.API_URL }}" --template '{{.limit}}')"
         fi
