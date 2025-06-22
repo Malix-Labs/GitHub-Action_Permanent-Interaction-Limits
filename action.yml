@@ -1,0 +1,9 @@
+name: "Limit Interactions"
+description: "Cyclically re-enable interaction limits"
+branding:
+  icon: slash
+  color: red
+runs:
+  using: "composite"
+  steps:
+  
