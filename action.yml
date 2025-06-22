@@ -1,0 +1,98 @@
+name: "Permanent Interaction Limits"
+description: "Makes Temporary Interaction Limits Permanent"
+branding:
+  icon: slash
+  color: red
+inputs:
+  token:
+    description: |
+      Description: A GitHub Personal Access Token (PAT) with the required permission ("Administration" (read + write) for Organization or Repository, "Interaction limits" (read + write) for User)
+      Type: string
+    required: true
+  scope:
+    description: |
+      Description: The scope of the interaction limits
+      Type: "existing_users" | "contributors_only" | "collaborators_only"
+      Default: Currently set interaction limits scope in the related built-in GitHub settings
+    required: false
+  target:
+    description: |
+      Description: The target of the interaction limits.
+      Type: "repository" | "user" | "organization"
+    required: false
+    default: "repository"
+runs:
+  using: composite
+  steps:
+  
+    - name: Validate inputs
+      shell: sh
+      run: |
+        set -euo pipefail
+
+        if [ -n "${{ inputs.scope }}" ]; then
+          case "${{ inputs.scope }}" in
+            existing_users|contributors_only|collaborators_only)
+              ;; # valid
+            *)
+              echo "::error::Invalid scope: '${{ inputs.scope }}'. Must be 'existing_users', 'contributors_only', or 'collaborators_only'."
+              exit 1
+              ;;
+          esac
+        fi
+
+        case "${{ inputs.target }}" in
+          repository|organization|user)
+            ;; # valid
+          *)
+            echo "::error::Invalid target: '${{ inputs.target }}'. Must be 'repository', 'organization', or 'user'."
+            exit 1
+            ;;
+        esac
+
+    - name: Determine API endpoint
+      shell: sh
+      run: |
+        set -euo pipefail
+
+        case "${{ inputs.target }}" in
+          repository)
+            API_URL="repos/${{ github.repository }}/interaction-limits"
+            ;;
+          organization)
+            API_URL="orgs/${{ github.repository_owner }}/interaction-limits"
+            ;;
+          user)
+            API_URL="user/interaction-limits"
+            ;;
+        esac
+
+        echo "API_URL=${API_URL}" >> "${GITHUB_ENV}"
+      env:
+        GITHUB_TOKEN: ${{ inputs.token }}
+
+    - name: Determine interaction limit
+      shell: sh
+      run: |
+        set -euo pipefail
+        
+        if [ -n "${{ inputs.scope }}" ]; then
+          LIMIT_TO_SET="${{ inputs.scope }}"
+        else
+          LIMIT_TO_SET="$(gh api "${{ env.API_URL }}" --jq .limit)"
+        fi
+        echo "LIMIT_TO_SET=${LIMIT_TO_SET}" >> "${GITHUB_ENV}"
+      env:
+        GITHUB_TOKEN: ${{ inputs.token }}
+
+    - name: Apply interaction limit
+      shell: sh
+      run: |
+        set -euo pipefail
+        
+        gh api "${{ env.API_URL }}" \
+          --method PUT \
+          --field "limit=${{ env.LIMIT_TO_SET }}" \
+          --field "expiry=six_months"
+      env:
+        GITHUB_TOKEN: ${{ inputs.token }}
