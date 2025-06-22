@@ -5,11 +5,38 @@ branding:
   color: red
 inputs:
   limit:
-    description: "The limit to set for interactions. Must be one of: `existing_users`, `contributors_only`, `collaborators_only`. If not provided, the action will use the currently set limit."
+    scope: |
+      Description: The scope of the interaction limits
+      Type: "existing_users" | "contributors_only" | "collaborators_only"
+      Default: if set, currently set limit.
     required: false
+  target:
+    description: |
+      Description: The target of the interaction limits
+      Type: "repository" | "owner"
+      Default: "repository"
+    required: false
+    default: "repository"
 runs:
   using: composite
   steps:
+
+    - name: Determine API endpoint
+      shell: sh
+      run: |
+        if [ "${{ inputs.target }}" = "owner" ]; then
+          OWNER_TYPE=$(gh api "users/${{ github.repository_owner }}" --jq .type)
+          if [ "${OWNER_TYPE}" = "Organization" ]; then
+            API_URL="orgs/${{ github.repository_owner }}/interaction-limits"
+          else
+            API_URL="users/${{ github.repository_owner }}/interaction-limits"
+          fi
+        else
+          API_URL="repos/${{ github.repository }}/interaction-limits"
+        fi
+        echo "API_URL=${API_URL}" >> $GITHUB_ENV
+      env:
+        GITHUB_TOKEN: ${{ github.token }}
 
     - name: Determine interaction limit
       shell: sh
@@ -17,7 +44,7 @@ runs:
         if [ -n "${{ inputs.limit }}" ]; then
           LIMIT_TO_SET="${{ inputs.limit }}"
         else
-          LIMIT_TO_SET="$(gh api 'repos/${{ github.repository }}/interaction-limits' --template '{{.limit}}')"
+          LIMIT_TO_SET="$(gh api "${{ env.API_URL }}" --template '{{.limit}}')"
         fi
         echo "LIMIT_TO_SET=${LIMIT_TO_SET}" >> $GITHUB_ENV
       env:
@@ -26,7 +53,7 @@ runs:
     - name: Apply interaction limit
       shell: sh
       run: |
-        gh api 'repos/${{ github.repository }}/interaction-limits' \
+        gh api "${{ env.API_URL }}" \
           --method PUT \
           --field "limit=${{ env.LIMIT_TO_SET }}" \
           --field "expiry=six_months"
