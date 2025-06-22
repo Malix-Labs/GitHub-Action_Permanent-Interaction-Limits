@@ -5,7 +5,7 @@ branding:
   color: red
 inputs:
   limit:
-    description: 'The limit to set for interactions. Must be one of: existing_users, contributors_only, collaborators_only. If not provided, the action will use the currently set limit.'
+    description: "The limit to set for interactions. Must be one of: `existing_users`, `contributors_only`, `collaborators_only`. If not provided, the action will use the currently set limit."
     required: false
 runs:
   using: composite
