@@ -8,7 +8,7 @@ inputs:
     description: 'The limit to set for interactions. Must be one of: existing_users, contributors_only, collaborators_only. If not provided, the action will use the currently set limit.'
     required: false
 runs:
-  using: "composite"
+  using: composite
   steps:
 
     - name: Determine interaction limit
@@ -17,7 +17,7 @@ runs:
         if [ -n "${{ inputs.limit }}" ]; then
           LIMIT_TO_SET="${{ inputs.limit }}"
         else
-          LIMIT_TO_SET="$(gh api 'repos/${{ github.repository }}/interaction-limits' --jq .limit)"
+          LIMIT_TO_SET="$(gh api 'repos/${{ github.repository }}/interaction-limits' --template '{{.limit}}')"
         fi
         echo "LIMIT_TO_SET=${LIMIT_TO_SET}" >> $GITHUB_ENV
       env:
@@ -28,7 +28,7 @@ runs:
       run: |
         gh api 'repos/${{ github.repository }}/interaction-limits' \
           --method PUT \
-          -f "limit=${{ env.LIMIT_TO_SET }}" \
-          -f "expiry=six_months"
+          --field "limit=${{ env.LIMIT_TO_SET }}" \
+          --field "expiry=six_months"
       env:
         GITHUB_TOKEN: ${{ github.token }}
