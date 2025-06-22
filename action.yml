@@ -5,17 +5,28 @@ branding:
   color: red
 inputs:
   limit:
-    description: 'The limit to set for interactions. Must be one of: existing_users, contributors_only, collaborators_only.'
-    required: true
+    description: 'The limit to set for interactions. Must be one of: existing_users, contributors_only, collaborators_only. If not provided, the action will use the currently set limit.'
+    required: false
 runs:
   using: "composite"
   steps:
-    - name: Refresh interaction limit
-      shell: bash
+    - name: Determine interaction limit
+      shell: sh
       run: |
-        gh api repos/${{ github.repository }}/interaction-limits \
-          -X PUT \
-          -f limit=${{ inputs.limit }} \
-          -f expiry=six_months
+        if [ -n "${{ inputs.limit }}" ]; then
+          LIMIT_TO_SET="${{ inputs.limit }}"
+        else
+          LIMIT_TO_SET="$(gh api 'repos/${{ github.repository }}/interaction-limits' --jq .limit)"
+        fi
+        echo "LIMIT_TO_SET=${LIMIT_TO_SET}" >> $GITHUB_ENV
+      env:
+        GITHUB_TOKEN: ${{ github.token }}
+    - name: Apply interaction limit
+      shell: sh
+      run: |
+        gh api 'repos/${{ github.repository }}/interaction-limits' \
+          --method PUT \
+          -f "limit=${{ env.LIMIT_TO_SET }}" \
+          -f "expiry=six_months"
       env:
         GITHUB_TOKEN: ${{ github.token }}
