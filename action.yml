@@ -8,11 +8,11 @@ inputs:
     description: |
       Description: The scope of the interaction limits
       Type: "existing_users" | "contributors_only" | "collaborators_only"
-      Default: if set, currently set limit.
+      Default: Currently set interaction limits scope in the related built-in GitHub settings
     required: false
   target:
     description: |
-      Description: The target of the interaction limits
+      Description: The target of the interaction limits. Owner means the organization or the user, depending on where this action is used.
       Type: "repository" | "owner"
       Default: "repository"
     required: false
