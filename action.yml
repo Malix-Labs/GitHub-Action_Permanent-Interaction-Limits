@@ -1,5 +1,5 @@
-name: "Limit Interactions"
-description: "Cyclically re-enable interaction limits"
+name: "Permanent Interaction Limits"
+description: "Makes Temporary Interaction Limits Permanents"
 branding:
   icon: slash
   color: red
@@ -10,7 +10,7 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: Set interaction limit
+    - name: Refresh interaction limit
       shell: bash
       run: |
         gh api repos/${{ github.repository }}/interaction-limits \
