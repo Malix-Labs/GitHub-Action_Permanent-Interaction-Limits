@@ -43,7 +43,7 @@ runs:
         if [ -n "${{ inputs.scope }}" ]; then
           LIMIT_TO_SET="${{ inputs.scope }}"
         else
-          LIMIT_TO_SET="$(gh api "${{ env.API_URL }}" --template '{{.limit}}')"
+          LIMIT_TO_SET="$(gh api "${{ env.API_URL }}" --jq .limit)"
         fi
         echo "LIMIT_TO_SET=${LIMIT_TO_SET}" >> $GITHUB_ENV
       env:
