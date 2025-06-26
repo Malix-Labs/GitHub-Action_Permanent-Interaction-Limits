@@ -23,6 +23,8 @@ runs:
     - name: Determine API endpoint
       shell: sh
       run: |
+        set -euo pipefail
+        
         if [ "${{ inputs.target }}" = "owner" ]; then
           OWNER_TYPE=$(gh api "users/${{ github.repository_owner }}" --jq .type)
           if [ "${OWNER_TYPE}" = "Organization" ]; then
@@ -40,6 +42,8 @@ runs:
     - name: Determine interaction limit
       shell: sh
       run: |
+        set -euo pipefail
+        
         if [ -n "${{ inputs.scope }}" ]; then
           LIMIT_TO_SET="${{ inputs.scope }}"
         else
@@ -52,6 +56,8 @@ runs:
     - name: Apply interaction limit
       shell: sh
       run: |
+        set -euo pipefail
+        
         gh api "${{ env.API_URL }}" \
           --method PUT \
           --field "limit=${{ env.LIMIT_TO_SET }}" \
