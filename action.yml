@@ -4,11 +4,6 @@ branding:
   icon: slash
   color: red
 inputs:
-  token:
-    description: |
-      Description: A GitHub Personal Access Token (PAT) with the required permission ("Administration" (read + write) for Organization or Repository, "Interaction limits" (read + write) for User)
-      Type: string
-    required: true
   scope:
     description: |
       Description: The scope of the interaction limits
@@ -18,17 +13,24 @@ inputs:
   target:
     description: |
       Description: The target of the interaction limits.
-      Type: "repository" | "user" | "organization"
+      Type: "repository" | "organization" | "user"
     required: false
     default: "repository"
 runs:
   using: composite
   steps:
-  
+
     - name: Validate inputs
       shell: sh
+      env:
+        GITHUB_TOKEN: ${{ env.TOKEN }}
       run: |
         set -euo pipefail
+
+        if [ -z "${GITHUB_TOKEN}" ]; then
+          echo "::error::Environment variable 'GITHUB_TOKEN' is not set."
+          exit 1
+        fi
 
         if [ -n "${{ inputs.scope }}" ]; then
           case "${{ inputs.scope }}" in
@@ -51,6 +53,8 @@ runs:
         esac
 
     - name: Determine API endpoint
+      env:
+        GITHUB_TOKEN: ${{ env.TOKEN }}
       shell: sh
       run: |
         set -euo pipefail
@@ -68,31 +72,29 @@ runs:
         esac
 
         echo "API_URL=${API_URL}" >> "${GITHUB_ENV}"
-      env:
-        GITHUB_TOKEN: ${{ inputs.token }}
 
     - name: Determine interaction limit
+      env:
+        GITHUB_TOKEN: ${{ env.TOKEN }}
       shell: sh
       run: |
         set -euo pipefail
-        
+
         if [ -n "${{ inputs.scope }}" ]; then
           LIMIT_TO_SET="${{ inputs.scope }}"
         else
           LIMIT_TO_SET="$(gh api "${{ env.API_URL }}" --jq .limit)"
         fi
         echo "LIMIT_TO_SET=${LIMIT_TO_SET}" >> "${GITHUB_ENV}"
-      env:
-        GITHUB_TOKEN: ${{ inputs.token }}
 
     - name: Apply interaction limit
+      env:
+        GITHUB_TOKEN: ${{ env.TOKEN }}
       shell: sh
       run: |
         set -euo pipefail
-        
+
         gh api "${{ env.API_URL }}" \
           --method PUT \
           --field "limit=${{ env.LIMIT_TO_SET }}" \
           --field "expiry=six_months"
-      env:
-        GITHUB_TOKEN: ${{ inputs.token }}
