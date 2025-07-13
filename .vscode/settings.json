@@ -1,0 +1,6 @@
+{
+	"yaml.schemas": {
+		"https://www.schemastore.org/github-issue-config.json": "file:///home/malix/Repositories/Malix_Labs/github-action_perma/GitHub-Action_Permanent-Interaction-Limits/.github/ISSUE_TEMPLATE/config.{yml,yaml}",
+		"https://www.schemastore.org/github-workflow.json": "file:///home/malix/Repositories/Malix_Labs/github-action_perma/GitHub-Action_Permanent-Interaction-Limits/workflow-templates/**/*.{yml,yaml}"
+	}
+}
