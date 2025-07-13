@@ -4,18 +4,18 @@ branding:
   icon: slash
   color: red
 inputs:
-  scope:
-    description: |
-      Description: The scope of the interaction limits
-      Type: "existing_users" | "contributors_only" | "collaborators_only"
-      Default: Currently set interaction limits scope in the related built-in GitHub settings
-    required: false
   target:
     description: |
       Description: The target of the interaction limits.
       Type: "repository" | "organization" | "user"
     required: false
     default: "repository"
+  scope:
+    description: |
+      Description: The scope of the interaction limits
+      Type: "existing_users" | "contributors_only" | "collaborators_only"
+      Default: Currently set interaction limits scope in the related built-in GitHub settings
+    required: false
 runs:
   using: composite
   steps:
