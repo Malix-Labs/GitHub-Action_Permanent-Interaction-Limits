@@ -27,7 +27,7 @@ runs:
         set -euCET -o pipefail
 
         if [ -z "${{ env.GITHUB_TOKEN }}" ]; then
-          echo "::error::Environment variable 'GITHUB_TOKEN' is not set."
+          echo "::error::'env.TOKEN' ; Actual: '${{ env.TOKEN }}' ; Expected: Non-Null String"
           exit 1
         fi
 
@@ -36,7 +36,7 @@ runs:
             existing_users|contributors_only|collaborators_only)
               ;; # valid
             *)
-              echo "::error::Invalid scope: '${{ inputs.scope }}'. Must be 'existing_users', 'contributors_only', or 'collaborators_only'."
+              echo "::error::'inputs.scope' ; Actual: '${{ inputs.scope }}' ; Expected: 'existing_users' | 'contributors_only' | 'collaborators_only'"
               exit 1
               ;;
           esac
@@ -46,7 +46,7 @@ runs:
           repository|organization|user)
             ;; # valid
           *)
-            echo "::error::Invalid target: '${{ inputs.target }}'. Must be 'repository', 'organization', or 'user'."
+            echo "::error::'inputs.target' ; Actual: '${{ inputs.target }}' ; Expected: 'repository' | 'organization' | 'user'"
             exit 1
             ;;
         esac
