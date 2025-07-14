@@ -35,19 +35,7 @@ To consume this Action you need a GitHub Fine-Grained Personal Access Token (PAT
 
 ## Usage
 
-<!-- TEMPLATES -->
-
-### Repository
-
-
-
-### Organization
-
-
-
-### User
-
-
+See the complete [workflow template](./workflow-templates/main.yml)
 
 ## Inputs, Variables, and Secrets
 

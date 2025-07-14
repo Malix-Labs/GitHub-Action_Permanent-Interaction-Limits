@@ -1,0 +1,29 @@
+name: "Permanent Interaction Limits"
+on:
+  # Should be less than the expiration time of the interaction limits
+  schedule:
+    - cron: "0 0 1 * *" # First Day of Each Month at 00:00
+  workflow_dispatch:
+jobs:
+  main:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: Malix-Labs/GitHub-Action_Permanent-Interaction-Limits@v1
+        # # See https://github.com/marketplace/actions/permanent-interaction-limits#inputs-variables-and-secrets
+        # with:
+        #
+        #   # Description: The target of the interaction limits.
+        #   # Type: "repository" | "organization" | "user"
+        #   # Required: False
+        #   # Default: repository
+        #   target: repository
+        #
+        #   # Description: The scope of the interaction limits
+        #   # Type: "existing_users" | "contributors_only" | "collaborators_only"
+        #   # Required: False
+        #   # Default: Current interaction limits setting
+        #   scope: contributors_only
+
+        env:
+          # See https://github.com/marketplace/actions/permanent-interaction-limits#pre-requisites
+          TOKEN: ${{ secrets.TOKEN_GITHUB-ACTION_PERMANENT-INTERACTION-LIMITS }}
