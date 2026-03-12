@@ -1,0 +1,12 @@
+cff-version: 1.2.0
+type: software
+title: "GitHub Action - Permanent Interaction Limits"
+abstract: "GitHub Action to Permanently Limit Interactions"
+repository-code: "https://github.com/Malix-Labs/GitHub-Action_Permanent-Interaction-Limits"
+license: AGPL-3.0-or-later
+authors:
+  - alias: "Malix"
+    family-names: "Brunet"
+    given-names: "Alix"
+    orcid: "https://orcid.org/0009-0005-6274-1845"
+    email: "alixbrunetcontact@gmail.com"
