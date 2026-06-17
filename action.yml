@@ -23,87 +23,29 @@ runs:
       shell: bash
       env:
         GITHUB_TOKEN: ${{ env.TOKEN }}
+        INPUT_SCOPE: ${{ inputs.scope }}
+        INPUT_TARGET: ${{ inputs.target }}
       run: |
-        set -euCET -o pipefail
-
-        if [ -z "${{ env.GITHUB_TOKEN }}" ]; then
-          echo "::error::'env.TOKEN' ; Actual: '${{ env.TOKEN }}' ; Expected: Non-Null String"
-          exit 1
-        fi
-
-        if [ -n "${{ inputs.scope }}" ]; then
-          case "${{ inputs.scope }}" in
-            existing_users|contributors_only|collaborators_only)
-              ;; # valid
-            *)
-              echo "::error::'inputs.scope' ; Actual: '${{ inputs.scope }}' ; Expected: 'existing_users' | 'contributors_only' | 'collaborators_only'"
-              exit 1
-              ;;
-          esac
-        fi
-
-        case "${{ inputs.target }}" in
-          repository|organization|user)
-            ;; # valid
-          *)
-            echo "::error::'inputs.target' ; Actual: '${{ inputs.target }}' ; Expected: 'repository' | 'organization' | 'user'"
-            exit 1
-            ;;
-        esac
+        "${{ github.action_path }}/src/validate-inputs.sh"
 
     - name: Determine API endpoint
       shell: bash
+      env:
+        INPUT_TARGET: ${{ inputs.target }}
       run: |
-        set -euCET -o pipefail
-
-        case "${{ inputs.target }}" in
-          repository)
-            API_URL="repos/${{ github.repository }}/interaction-limits"
-            ;;
-          organization)
-            API_URL="orgs/${{ github.repository_owner }}/interaction-limits"
-            ;;
-          user)
-            API_URL="user/interaction-limits"
-            ;;
-        esac
-
-        echo "API_URL=${API_URL}" >> "${GITHUB_ENV}"
+        "${{ github.action_path }}/src/determine-api-endpoint.sh"
 
     - name: Determine interaction limit
+      shell: bash
       env:
         GITHUB_TOKEN: ${{ env.TOKEN }}
-        API_URL: ${{ env.API_URL }}
-      shell: bash
+        INPUT_SCOPE: ${{ inputs.scope }}
       run: |
-        set -euCET -o pipefail
-
-        if [ -n "${{ inputs.scope }}" ]; then
-          LIMIT_TO_SET="${{ inputs.scope }}"
-        else
-          LIMIT_TO_SET="$(
-            gh api \
-              --header "X-GitHub-Api-Version: 2022-11-28" \
-              --header "Accept: application/vnd.github+json" \
-              "${{ env.API_URL }}" \
-              --jq .limit
-          )"
-        fi
-        echo "LIMIT_TO_SET=${LIMIT_TO_SET}" >> "${GITHUB_ENV}"
+        "${{ github.action_path }}/src/determine-interaction-limit.sh"
 
     - name: Apply interaction limit
+      shell: bash
       env:
         GITHUB_TOKEN: ${{ env.TOKEN }}
-        API_URL: ${{ env.API_URL }}
-        LIMIT_TO_SET: ${{ env.LIMIT_TO_SET }}
-      shell: bash
       run: |
-        set -euCET -o pipefail
-
-        gh api \
-          --header "X-GitHub-Api-Version: 2022-11-28" \
-          --header "Accept: application/vnd.github+json" \
-          "${{ env.API_URL }}" \
-          --method PUT \
-          --field "limit=${{ env.LIMIT_TO_SET }}" \
-          --field "expiry=six_months"
+        "${{ github.action_path }}/src/apply-interaction-limit.sh"
